@@ -371,7 +371,7 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
     SecureRandom random = new SecureRandom();
     int requestCode = random.nextInt();
     PendingIntent contentIntent = PendingIntent.getActivity(this, requestCode, notificationIntent,
-        PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
     Intent dismissedNotificationIntent = new Intent(this, PushDismissedHandler.class);
     dismissedNotificationIntent.putExtra(PUSH_BUNDLE, extras);
@@ -381,7 +381,7 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
 
     requestCode = random.nextInt();
     PendingIntent deleteIntent = PendingIntent.getBroadcast(this, requestCode, dismissedNotificationIntent,
-        PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
     NotificationCompat.Builder mBuilder = null;
 
