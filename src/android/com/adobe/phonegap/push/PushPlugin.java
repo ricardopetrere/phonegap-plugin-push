@@ -15,6 +15,12 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
+// #region Para SDK 33
+// FIXME:
+import android.Manifest;
+// import android.content.pm.PackageManager;
+import org.apache.cordova.PermissionHelper;
+// #endregion
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -169,12 +175,28 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
     }
   }
 
+  // FIXME: Usar constantes Build.VERSION_CODES.TIRAMISU e Manifest.permission.POST_NOTIFICATIONS
+  private boolean checkForPostNotificationsPermission() {
+    if (Build.VERSION.SDK_INT >= 33) {
+      if (!PermissionHelper.hasPermission(this, "android.permission.POST_NOTIFICATIONS"))
+      {
+        PermissionHelper.requestPermission(this, 0, "android.permission.POST_NOTIFICATIONS");
+        return false;
+      }
+    }
+    return true;
+  }
+
   @Override
   public boolean execute(final String action, final JSONArray data, final CallbackContext callbackContext) {
     Log.v(LOG_TAG, "execute: action=" + action);
     gWebView = this.webView;
 
     if (INITIALIZE.equals(action)) {
+      boolean hasPermission = checkForPostNotificationsPermission();
+      if (!hasPermission) {
+        return true;
+      }
       cordova.getThreadPool().execute(new Runnable() {
         public void run() {
           pushContext = callbackContext;
